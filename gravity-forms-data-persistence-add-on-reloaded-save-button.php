@@ -2,7 +2,7 @@
 /*
 Plugin Name: Gravity Forms - Data Persistence Reloaded - Save Button
 Description: Extends the 'Gravity Forms - Data Persistence Reloaded' plugin to add a save button to the form footer - allowing users to instantly save their form, and providing the reassurance that the form has been saved.
-Version: 1.0
+Version: 1.1
 Author: Adrian Gordon
 License: GPL2
 */
@@ -29,15 +29,14 @@ if (!class_exists('ITSP_GF_DPR_Save_Button')) {
             if ((self::is_gravityforms_installed())) {
 			// start the plugin
 			add_action('gform_enqueue_scripts', array(&$this,'itsg_gf_save_button_button_ajax'), 90, 3);
-			add_filter( 'gform_next_button', array(&$this,'my_next_button_markup'), 10, 2 );
-			add_filter( 'gform_submit_button', array(&$this,'my_submit_button_markup'), 10, 2 );
+			
 			}
         } // END __construct
 		
 		/**
          * Place the save button before the 'Next' button
          */
-		function my_next_button_markup( $next_button, $form ) {
+		function itsg_gf_next_button_markup( $next_button, $form ) {
 			$save_button = self::$save_button;
 			return $save_button.$next_button;
 		} // END my_next_button_markup
@@ -45,18 +44,21 @@ if (!class_exists('ITSP_GF_DPR_Save_Button')) {
 		/**
          * Place the save button before the 'Submit' button
          */
-		function my_submit_button_markup( $submit_button, $form ) {
+		function itsg_gf_submit_button_markup( $submit_button, $form ) {
 			$save_button = self::$save_button;
 			return $save_button.$submit_button;
 		} // END my_submit_button_markup
 
 		/**
-         * If Ajax data persistence is enabled, user is logged in - enqueue javascript
+         * If Ajax data persistence is enabled, user is logged in and current form is not a user registration form - enqueue javascript and buttons
          */
 		public function itsg_gf_save_button_button_ajax($form, $is_ajax) {
-			if($form['ri_gfdp_persist'] == 'ajax' && is_user_logged_in()) {
+	
+			if($form['ri_gfdp_persist'] == 'ajax' && is_user_logged_in() && !self::is_user_registration_form($form)) {
 			
 				add_action('wp_footer', array(&$this,'itsg_gf_save_button_ajax'));
+				add_filter( 'gform_next_button', array(&$this,'itsg_gf_next_button_markup'), 10, 2 );
+				add_filter( 'gform_submit_button', array(&$this,'itsg_gf_submit_button_markup'), 10, 2 );
 				
 			}
 		} // END itsg_gf_save_button_button_ajax
@@ -143,6 +145,24 @@ if (!class_exists('ITSP_GF_DPR_Save_Button')) {
         {
             return function_exists('ri_gfdp_ajax');
         } // END is_dpr_installed
+		
+		private static function is_user_registration_form($form)
+		{
+		global $wpdb;
+		
+		$form_id = $form[id];
+		$table_user_reg = $wpdb->prefix . "rg_userregistration";
+		
+		$sql = "SELECT userreg.form_id
+		FROM $table_user_reg as userreg 
+		WHERE userreg.form_id = $form_id";
+		
+		$results = $wpdb->get_results($sql);
+		
+		if (!empty($results)) {
+			return true;
+			} 
+		}
 		
 	}
     $ITSP_GF_DPR_Save_Button = new ITSP_GF_DPR_Save_Button();

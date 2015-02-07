@@ -4,7 +4,7 @@ Donate link: http://www.itsupportguides.com/
 Tags: Gravity Forms, Gravity Forms Data Persistence Add-On Reloaded, addon
 Requires at least: 4.0
 Tested up to: 4.1
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,6 +40,10 @@ To enable the 'Save' button, install and activate the plugin, open the form sett
 7. After the form has been saved, the 'Save' button will display 'Saved'. The 'Saved' message is held for three seconds before returning to 'Save'.
 
 == Changelog ==
+
+= 1.1 =
+* Changed how 'Save' button and JavaScript is called into the form
+* Added function to ensure 'Save' button does not appear on user registration forms (Create an account or Maintain account)
 
 = 1.0 =
 * First public release.
